@@ -1,0 +1,987 @@
+/* =========================================================
+   Tournoi ENOA — Thème "Volley" (navy / or)
+   Palette reprise de l'affiche officielle du tournoi
+   ========================================================= */
+:root {
+    --navy-950: #0c1730;
+    --navy-900: #142a52;
+    --navy-800: #1c3a6e;
+    --navy-700: #274c88;
+    --gold-600: #d99a00;
+    --gold-500: #f5b400;
+    --gold-400: #ffc72c;
+    --gold-100: #fdf1cf;
+    --paper: #f4f6fb;
+    --ink: #16213e;
+    --muted: #5c6b84;
+    --line: #e1e6f0;
+    --white: #ffffff;
+    --danger: #c0392b;
+    --success: #1e8a5f;
+}
+
+* { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+}
+
+a { color: var(--navy-800); }
+a:hover { color: var(--gold-600); }
+
+.container { max-width: 1140px; }
+
+/* ---------- En-tête (image de l'affiche) ---------- */
+.site-header {
+    padding: 2rem 0 1.25rem;
+    text-align: center;
+}
+
+.site-header .header-image-frame {
+    width: 100%;
+    height: clamp(160px, 20vw, 260px);
+    overflow: hidden;
+    border-radius: 14px;
+    box-shadow: 0 12px 30px rgba(12, 23, 48, .28);
+    background-color: #000e29;
+    background-image:
+        radial-gradient(rgba(90, 140, 220, .45) 1px, transparent 1.6px),
+        radial-gradient(rgba(90, 140, 220, .45) 1px, transparent 1.6px);
+    background-size: 20px 20px;
+    background-position: 0 0, 10px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.site-header .header-image {
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: 88%;
+    max-height: 80%;
+    object-fit: contain;
+}
+
+/* ---------- Navigation ---------- */
+.navbar-enoa {
+    background: linear-gradient(180deg, var(--navy-900), var(--navy-950));
+    border-radius: 12px;
+    padding: .6rem 1rem;
+    margin-bottom: 2.25rem;
+    box-shadow: 0 6px 18px rgba(12, 23, 48, .18);
+}
+
+.navbar-enoa .navbar-brand {
+    font-weight: 800;
+    letter-spacing: .02em;
+    color: var(--gold-500) !important;
+}
+
+.navbar-enoa .nav-link {
+    color: rgba(255, 255, 255, .85) !important;
+    font-weight: 600;
+    padding: .5rem 1rem !important;
+    border-radius: 8px;
+    transition: background-color .15s ease, color .15s ease;
+}
+
+.navbar-enoa .nav-link:hover { color: var(--white) !important; background: rgba(255, 255, 255, .08); }
+
+.navbar-enoa .nav-link.active {
+    color: var(--navy-950) !important;
+    background: var(--gold-500);
+}
+
+.navbar-enoa .navbar-toggler {
+    border-color: rgba(255, 255, 255, .35);
+}
+
+.navbar-enoa .navbar-toggler-icon {
+    filter: invert(1);
+}
+
+/* ---------- Panneau de contenu principal ---------- */
+.app-panel {
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 2rem clamp(1.25rem, 4vw, 2.5rem);
+    box-shadow: 0 10px 30px rgba(12, 23, 48, .06);
+    margin-bottom: 2.5rem;
+}
+
+/* ---------- En-tête de page ---------- */
+.page-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.75rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 2px solid var(--line);
+}
+
+.page-heading h2 { margin: .15rem 0 0; font-size: 1.9rem; font-weight: 800; color: var(--navy-950); }
+
+.eyebrow {
+    margin: 0;
+    color: var(--gold-600);
+    font: 800 .75rem/1.2 Arial, sans-serif;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+
+.account-chip {
+    color: var(--white);
+    font-weight: 700;
+    font-size: .9rem;
+    margin: 0 .75rem;
+}
+
+.login-card { max-width: 420px; }
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    margin-bottom: .5rem;
+    color: var(--navy-800);
+    font-weight: 700;
+    font-size: .9rem;
+    text-decoration: none;
+}
+.back-link:hover, .back-link:focus {
+    color: var(--gold-600);
+    text-decoration: underline;
+}
+
+/* ---------- Boutons ---------- */
+.btn-enoa {
+    background: var(--gold-500);
+    border-color: var(--gold-500);
+    color: var(--navy-950);
+    font-weight: 700;
+}
+.btn-enoa:hover, .btn-enoa:focus {
+    background: var(--gold-400);
+    border-color: var(--gold-400);
+    color: var(--navy-950);
+}
+
+.btn-navy {
+    background: var(--navy-900);
+    border-color: var(--navy-900);
+    color: var(--white);
+    font-weight: 700;
+}
+.btn-navy:hover, .btn-navy:focus {
+    background: var(--navy-800);
+    border-color: var(--navy-800);
+    color: var(--white);
+}
+
+/* ---------- Sélecteur de tournoi actif ---------- */
+.selector .form-select { max-width: 420px; }
+
+/* ---------- Statistiques (tableau de bord) ---------- */
+.stats article {
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 1.25rem;
+    height: 100%;
+}
+.stats span {
+    display: block;
+    color: var(--muted);
+    font: 700 .72rem Arial, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+}
+.stats strong {
+    display: block;
+    margin-top: .6rem;
+    font-size: 1.65rem;
+    color: var(--navy-950);
+}
+
+/* ---------- Cartes de liens rapides / poules ---------- */
+.quick-links a, .pool-card {
+    display: block;
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-left: 5px solid var(--gold-500);
+    border-radius: 12px;
+    padding: 1.25rem;
+    text-decoration: none;
+    color: var(--ink);
+    height: 100%;
+    transition: transform .15s ease, box-shadow .15s ease;
+}
+.quick-links a:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 22px rgba(12, 23, 48, .12);
+    color: var(--ink);
+}
+.quick-links b { display: block; font-size: 1.3rem; color: var(--navy-950); }
+.quick-links span { display: block; margin-top: .4rem; color: var(--muted); font: .85rem Arial, sans-serif; }
+
+.pool-card h3 { margin: .25rem 0; color: var(--navy-950); }
+
+/* ---------- Tableaux ---------- */
+.table-wrap {
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+}
+.table-wrap table { margin-bottom: 0; }
+.table-wrap thead {
+    background: var(--navy-900);
+}
+.table-wrap thead th {
+    color: var(--white);
+    font: 700 .72rem Arial, sans-serif;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    border: 0;
+    vertical-align: middle;
+}
+.table-wrap td { vertical-align: middle; }
+.table-wrap td a { color: var(--navy-800); font-weight: 700; }
+.table-wrap tbody tr:hover { background: var(--gold-100); }
+.table-wrap tbody tr.row-link { cursor: pointer; }
+
+/* Code couleur par poule (classements de qualification) : même couleur reprise entre le
+   bloc classement et le bloc résultats d'une même poule, pour les associer visuellement. */
+.table-wrap.pool-color-1 { border-left: 4px solid #0d6efd; }
+.table-wrap.pool-color-2 { border-left: 4px solid #6f42c1; }
+.table-wrap.pool-color-3 { border-left: 4px solid #0dcaf0; }
+.table-wrap.pool-color-4 { border-left: 4px solid #fd7e14; }
+.pool-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 6px;
+    vertical-align: middle;
+}
+.pool-dot.pool-color-1 { background: #0d6efd; }
+.pool-dot.pool-color-2 { background: #6f42c1; }
+.pool-dot.pool-color-3 { background: #0dcaf0; }
+.pool-dot.pool-color-4 { background: #fd7e14; }
+.table-wrap tbody tr.row-link:focus-visible {
+    outline: 2px solid var(--gold-600);
+    outline-offset: -2px;
+}
+
+/* ---------- États vides ---------- */
+.empty {
+    text-align: center;
+    padding: 3.5rem 1.5rem;
+    background: var(--white);
+    border: 1px dashed var(--line);
+    border-radius: 12px;
+}
+.empty h3 { color: var(--navy-950); }
+
+/* ---------- Formulaires ---------- */
+.form-card {
+    max-width: 640px;
+    margin: 0 auto;
+}
+.form-card .form-label { font-weight: 700; color: var(--navy-950); }
+.form-card .form-control,
+.form-card .form-select {
+    border-color: var(--line);
+}
+.form-card .form-control:focus,
+.form-card .form-select:focus {
+    border-color: var(--gold-500);
+    box-shadow: 0 0 0 .2rem rgba(245, 180, 0, .25);
+}
+
+/* ---------- Pied de page ---------- */
+footer {
+    margin-top: 2rem;
+    padding: 1.25rem 0;
+    text-align: center;
+    color: var(--muted);
+    font: .8rem Arial, sans-serif;
+}
+
+/* ---------- Tableau des poules (phase de qualification) ---------- */
+.qual-board {
+    position: relative;
+    background: linear-gradient(160deg, var(--navy-800), var(--navy-900) 65%, var(--navy-950));
+    border-radius: 16px;
+    padding: 2.75rem clamp(1.25rem, 4vw, 3rem) 2rem;
+    color: var(--gold-100);
+    overflow: hidden;
+    box-shadow: 0 14px 34px rgba(12, 23, 48, .35);
+}
+
+.qual-board__corner {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: var(--navy-950);
+    color: var(--gold-400);
+    font: 800 .78rem/1.25 Arial, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    text-align: right;
+    padding: .9rem 2.25rem .9rem 3rem;
+    clip-path: polygon(28% 0, 100% 0, 100% 100%, 0 100%);
+}
+
+.qual-board__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 1.75rem;
+    margin-top: 1.5rem;
+}
+
+.qual-pool {
+    position: relative;
+    background: rgba(0, 0, 0, .18);
+    border: 1px solid rgba(255, 199, 44, .35);
+    border-radius: 14px;
+    padding: 1.1rem 1.1rem 1rem;
+}
+
+.qual-pool__remove {
+    position: absolute;
+    top: .5rem;
+    right: .5rem;
+    width: 22px;
+    height: 22px;
+    line-height: 20px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .12);
+    color: var(--gold-100);
+    font-size: .9rem;
+    cursor: pointer;
+}
+.qual-pool__remove:hover { background: rgba(255, 255, 255, .25); }
+
+.qual-pool__header {
+    display: flex;
+    flex-direction: column;
+    gap: .35rem;
+    margin-bottom: 1rem;
+    padding-right: 1.5rem;
+}
+
+.qual-pool__badge {
+    align-self: flex-start;
+    background: var(--gold-500);
+    color: var(--navy-950);
+    font: 800 .7rem Arial, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    padding: .2rem .6rem;
+    border-radius: 999px;
+}
+
+.qual-pool__name {
+    background: transparent;
+    border: none;
+    border-bottom: 1px dashed rgba(253, 241, 207, .45);
+    color: var(--gold-100);
+    font-weight: 700;
+    font-size: 1.05rem;
+    padding: .15rem 0;
+    width: 100%;
+}
+.qual-pool__name:focus { outline: none; border-bottom-color: var(--gold-400); }
+.qual-pool__name::placeholder { color: rgba(253, 241, 207, .55); }
+
+.qual-pool__slots {
+    display: flex;
+    flex-direction: column;
+    gap: .6rem;
+    position: relative;
+    padding-left: 1.1rem;
+}
+.qual-pool__slots:empty { padding-left: 0; }
+.qual-pool__slots::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: .95rem;
+    bottom: .95rem;
+    width: 2px;
+    background: rgba(253, 241, 207, .35);
+}
+.qual-pool__slots:empty::before { content: none; }
+
+.qual-slot {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+}
+.qual-slot__line {
+    position: absolute;
+    left: -1.1rem;
+    top: 50%;
+    width: 1.1rem;
+    height: 2px;
+    background: rgba(253, 241, 207, .35);
+}
+
+.qual-slot__select {
+    flex: 1;
+    min-width: 0;
+    appearance: none;
+    background: var(--gold-100);
+    color: var(--navy-950);
+    font-weight: 700;
+    font-size: .85rem;
+    border: none;
+    border-radius: 999px;
+    padding: .5rem 1rem;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, .25);
+    cursor: pointer;
+}
+.qual-slot__select:focus { outline: 2px solid var(--gold-400); outline-offset: 1px; }
+.qual-slot__select option:disabled { color: #b9a9a9; }
+
+.qual-slot__remove {
+    border: none;
+    background: transparent;
+    color: rgba(253, 241, 207, .6);
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 .15rem;
+}
+.qual-slot__remove:hover { color: var(--gold-100); }
+
+.qual-pool__add {
+    margin-top: .75rem;
+    background: transparent;
+    border: 1px dashed rgba(253, 241, 207, .45);
+    color: var(--gold-100);
+    font-weight: 700;
+    font-size: .78rem;
+    border-radius: 999px;
+    padding: .4rem .9rem;
+    cursor: pointer;
+}
+.qual-pool__add:hover { border-color: var(--gold-400); color: var(--gold-400); }
+
+.qual-pool__footer {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    margin-top: .9rem;
+    padding-top: .7rem;
+    border-top: 1px dashed rgba(253, 241, 207, .3);
+    font-size: .75rem;
+    color: rgba(253, 241, 207, .85);
+}
+.qual-pool__valid { cursor: pointer; }
+.qual-pool__valid input { cursor: pointer; }
+
+.qual-board__add-pool {
+    margin-top: 1.75rem;
+    background: rgba(255, 255, 255, .08);
+    border: 1px dashed rgba(253, 241, 207, .5);
+    color: var(--gold-100);
+    font-weight: 700;
+    border-radius: 10px;
+    padding: .6rem 1.1rem;
+    cursor: pointer;
+}
+.qual-board__add-pool:hover { background: rgba(255, 255, 255, .16); }
+
+.qual-board__actions {
+    margin-top: 1.75rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: .5rem;
+    flex-wrap: wrap;
+}
+
+/* ---------- Récap des durées calculées + minuteur (bande pleine largeur sous le tableau des poules) ---------- */
+.schedule-widget {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.75rem;
+    width: 100%;
+    margin-top: 1.25rem;
+    background: linear-gradient(160deg, var(--navy-800), var(--navy-900) 65%, var(--navy-950));
+    border-radius: 14px;
+    padding: 1.25rem clamp(1.25rem, 4vw, 2rem);
+    color: var(--gold-100);
+    box-shadow: 0 10px 24px rgba(12, 23, 48, .3);
+}
+.schedule-widget__durees {
+    flex: 1 1 320px;
+}
+.schedule-widget__sep-v {
+    align-self: stretch;
+    width: 1px;
+    background: rgba(255, 255, 255, .15);
+}
+.schedule-widget__timer-wrap {
+    flex: 0 0 auto;
+    text-align: center;
+}
+.schedule-widget__title {
+    margin: 0 0 .6rem;
+    font: 800 .78rem Arial, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--gold-400);
+}
+.schedule-widget__empty {
+    margin: 0;
+    font-size: .8rem;
+    color: rgba(255, 255, 255, .65);
+}
+.schedule-widget__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+.schedule-widget__list li {
+    display: flex;
+    flex-direction: column;
+    gap: .15rem;
+    font-size: .8rem;
+}
+.schedule-widget__list li span { color: rgba(255, 255, 255, .6); font-size: .72rem; text-transform: uppercase; letter-spacing: .04em; }
+.schedule-widget__list li strong { color: var(--gold-100); }
+.schedule-widget__list li em { color: var(--gold-400); font-style: normal; font-weight: 700; font-size: .74rem; }
+.schedule-widget__timer-display {
+    font: 800 2rem/1 'Courier New', monospace;
+    color: var(--gold-400);
+    margin-bottom: .6rem;
+    letter-spacing: .04em;
+}
+.schedule-widget__timer-display--done {
+    color: #ff6b6b;
+    animation: schedule-widget-blink 1s step-start infinite;
+}
+@keyframes schedule-widget-blink {
+    50% { opacity: .3; }
+}
+.schedule-widget__timer-actions {
+    display: flex;
+    justify-content: center;
+    gap: .5rem;
+    margin-bottom: .5rem;
+}
+/* Bascule "match standard" / "grande finale" (durées différentes, voir _scheduleWidget.php) :
+   affichée seulement sur la page de l'arbre, au-dessus du minuteur. */
+.schedule-widget__timer-modes {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: .4rem;
+    margin-bottom: .75rem;
+}
+.schedule-widget__timer-hint {
+    margin: 0;
+    max-width: 220px;
+    font-size: .72rem;
+    color: rgba(255, 255, 255, .55);
+}
+
+/* Popup "fin de match" (minuteur) : même thème navy/or que le bloc minuteur, au lieu du
+   blanc par défaut de Bootstrap qui tranchait avec le reste du minuteur. */
+#matchEndModal .modal-content {
+    background: linear-gradient(160deg, var(--navy-800), var(--navy-900) 65%, var(--navy-950));
+    color: var(--gold-100);
+    border: none;
+}
+#matchEndModal .modal-header,
+#matchEndModal .modal-footer {
+    border-color: rgba(255, 255, 255, .15);
+}
+#matchEndModal .modal-title {
+    color: var(--gold-400);
+}
+
+/* ---------- Prochains matchs, affichés dans le bloc minuteur (match/live.php uniquement, $upcomingMatches) ---------- */
+.schedule-widget__upcoming {
+    flex: 1 1 100%;
+    margin-top: .25rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid rgba(255, 255, 255, .15);
+}
+.schedule-widget__upcoming-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+}
+.schedule-widget__match {
+    display: flex;
+    flex-direction: column;
+    gap: .35rem;
+    background: rgba(255, 255, 255, .06);
+    border-radius: 10px;
+    padding: .85rem 1rem;
+}
+.schedule-widget__match-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+.schedule-widget__match-court {
+    font-size: .72rem;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--gold-400);
+    font-weight: 700;
+}
+.schedule-widget__match-time {
+    font: 800 1.3rem 'Courier New', monospace;
+    color: var(--gold-100);
+}
+.schedule-widget__match-teams {
+    font-size: .95rem;
+    color: var(--gold-100);
+}
+.schedule-widget__match-teams em {
+    color: rgba(255, 255, 255, .5);
+    font-style: normal;
+    font-size: .8rem;
+    margin: 0 .3rem;
+}
+.schedule-widget__match-phase {
+    font-size: .72rem;
+    color: rgba(255, 255, 255, .6);
+}
+
+/* ---------- Mode "grand écran" (match/live.php, $liveMode) : tout le bloc x2/x3 pour rester
+   lisible depuis loin, sur la largeur de page habituelle (.container inchangé) ---------- */
+.schedule-widget--live {
+    justify-content: center;
+    gap: 2.5rem;
+    padding: 2.25rem clamp(1.75rem, 4vw, 3.25rem);
+    border-radius: 20px;
+}
+.schedule-widget--live .schedule-widget__title {
+    font-size: 1.35rem;
+    margin-bottom: 1rem;
+}
+.schedule-widget--live .schedule-widget__empty {
+    font-size: 1.15rem;
+}
+.schedule-widget--live .schedule-widget__timer-modes .btn {
+    font-size: 1.1rem;
+    padding: .6rem 1.4rem;
+}
+.schedule-widget--live .schedule-widget__timer-display {
+    font-size: 7.5rem;
+    line-height: 1.15;
+    padding: .5rem 0;
+    margin-bottom: 1.25rem;
+}
+.schedule-widget--live .schedule-widget__timer-actions .btn {
+    font-size: 1.3rem;
+    padding: .8rem 1.8rem;
+}
+.schedule-widget--live .schedule-widget__timer-hint {
+    font-size: 1.15rem;
+    max-width: 420px;
+}
+.schedule-widget--live .schedule-widget__upcoming {
+    margin-top: 1rem;
+    padding-top: 2rem;
+    text-align: center;
+}
+.schedule-widget--live .schedule-widget__upcoming-grid {
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    justify-content: center;
+    gap: 1.75rem;
+}
+.schedule-widget--live .schedule-widget__match {
+    align-items: center;
+    padding: 1.5rem 1.75rem;
+    border-radius: 16px;
+    gap: .6rem;
+}
+.schedule-widget--live .schedule-widget__match-top {
+    justify-content: center;
+    gap: 1.25rem;
+}
+.schedule-widget--live .schedule-widget__match-court {
+    font-size: 1.15rem;
+}
+.schedule-widget--live .schedule-widget__match-time {
+    font-size: 2.5rem;
+}
+.schedule-widget--live .schedule-widget__match-teams {
+    font-size: 1.6rem;
+}
+.schedule-widget--live .schedule-widget__match-teams em {
+    font-size: 1.15rem;
+}
+.schedule-widget--live .schedule-widget__match-phase {
+    font-size: 1.05rem;
+}
+
+@media (max-width: 700px) {
+    .schedule-widget__sep-v { display: none; }
+    .qual-board__corner {
+        position: static;
+        display: inline-block;
+        clip-path: none;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        text-align: left;
+        padding: .6rem 1rem;
+    }
+    .qual-board__actions .btn { width: 100%; }
+}
+
+/* ---------- Arbre de la phase finale (upper/lower bracket + grande finale) ---------- */
+.bracket-wrap {
+    background: #10141c;
+    border-radius: 16px;
+    padding: 2rem clamp(1rem, 4vw, 2.5rem);
+    overflow-x: auto;
+    box-shadow: 0 14px 34px rgba(12, 23, 48, .35);
+}
+
+/* Colonne principale (upper + lower, empilés) à gauche, grande finale à droite. Le gap
+   horizontal isole nettement la grande finale du reste de l'arbre (elle n'est reliée que
+   par ses propres lignes de connexion, jamais collée à une colonne "Finale de bracket"). */
+.bracket-columns {
+    display: flex;
+    align-items: stretch;
+    gap: 4rem;
+}
+.bracket-main {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+.bracket-final-col {
+    flex: none;
+    display: flex;
+    /* flex-start (pas center) : centrer sur la hauteur TOTALE upper+lower empilés placerait
+       la grande finale au milieu de l'ensemble, pas au milieu du vrai espace entre les deux
+       (les deux ne coïncident que si upper et lower ont exactement la même hauteur). Le
+       script de la page (match/bracket.php) calcule le vrai milieu de l'écart entre les deux
+       brackets et pousse .bracket-phase--final avec un margin-top précis à cet endroit. */
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.bracket-phase {
+    display: inline-flex;
+    flex-direction: column;
+    min-width: 100%;
+}
+/* Écart entre upper et lower bracket : la carte "Grande finale" (~150-160px de haut,
+   label + en-tête + une carte de match, quelle que soit la profondeur des deux brackets)
+   doit pouvoir se centrer dedans sans jamais déborder sur le titre du bracket suivant. */
+.bracket-phase + .bracket-phase {
+    margin-top: 11rem;
+}
+
+.bracket-phase__label {
+    color: var(--gold-500);
+    font: 800 .68rem Arial, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    margin: 0 0 .75rem;
+}
+
+.bracket-phase__headers,
+.bracket-phase__body {
+    display: grid;
+}
+
+.bracket-col-header {
+    background: rgba(255, 255, 255, .06);
+    border: 1px solid rgba(255, 255, 255, .08);
+    border-radius: 10px;
+    padding: .55rem .75rem;
+    text-align: center;
+    color: var(--gold-100);
+    font: 700 .72rem Arial, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    margin-bottom: 1rem;
+}
+
+.bracket-phase__body {
+    position: relative;
+}
+
+/* ---------- Cartes de match ---------- */
+.bracket-slot {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.bracket-box {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+    background: #1b1f27;
+    border: 1px solid rgba(255, 255, 255, .07);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, .35);
+}
+/* Cliquable pour saisir/modifier le score (voir _scoreModal.php) : uniquement quand les
+   deux équipes du match sont connues. */
+.bracket-box.match-row {
+    cursor: pointer;
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+.bracket-box.match-row:hover {
+    border-color: var(--gold-500);
+    box-shadow: 0 3px 14px rgba(0, 0, 0, .5);
+}
+
+.bracket-box__teams {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+}
+
+.bracket-box__team {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .6rem;
+    padding: .45rem .75rem;
+    color: #e9ebf2;
+    font-weight: 600;
+    font-size: .82rem;
+}
+.bracket-box__team span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.bracket-box__team + .bracket-box__team {
+    border-top: 1px solid rgba(255, 255, 255, .08);
+}
+.bracket-box__team.is-pending {
+    color: rgba(233, 235, 242, .45);
+    font-style: italic;
+    font-weight: 500;
+}
+.bracket-box__team.is-winner {
+    color: var(--gold-400);
+}
+.bracket-box__team.is-winner span::before {
+    content: "🏆 ";
+}
+.bracket-box__score {
+    font-weight: 800;
+    flex: none;
+}
+
+.bracket-box__info {
+    flex: none;
+    width: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, .04);
+    border: none;
+    border-left: 1px solid rgba(255, 255, 255, .07);
+    color: rgba(255, 255, 255, .55);
+    cursor: pointer;
+    transition: background-color .15s ease, color .15s ease;
+}
+.bracket-box__info:hover {
+    background: rgba(255, 255, 255, .09);
+    color: var(--gold-400);
+}
+
+.bracket-box--final {
+    background: #221c10;
+    border: 1px solid var(--gold-500);
+}
+
+/* ---------- Lignes de connexion entre colonnes ----------
+   L'écart entre deux colonnes (grid-column-gap, 48px) est partagé en deux : chaque carte qui a
+   un match suivant tire un trait jusqu'au milieu de l'écart (::after sur .bracket-box.has-next),
+   et la carte suivante reprend le trait depuis ce même point médian jusqu'à son propre bord
+   gauche (::before sur .bracket-slot) — les deux segments se touchent exactement au milieu. */
+.bracket-box.has-next {
+    position: relative;
+}
+.bracket-box.has-next::after {
+    content: "";
+    position: absolute;
+    right: -24px;
+    top: 50%;
+    width: 24px;
+    height: 1px;
+    background: rgba(255, 255, 255, .3);
+}
+
+.bracket-slot--single::before {
+    content: "";
+    position: absolute;
+    left: -24px;
+    top: 50%;
+    width: 24px;
+    height: 1px;
+    background: rgba(255, 255, 255, .3);
+}
+
+.bracket-slot--pair::before {
+    content: "";
+    position: absolute;
+    left: -24px;
+    top: 50%;
+    width: 24px;
+    height: 1px;
+    background: rgba(255, 255, 255, .3);
+}
+.bracket-slot--pair::after {
+    content: "";
+    position: absolute;
+    left: -24px;
+    top: 25%;
+    height: 50%;
+    width: 1px;
+    background: rgba(255, 255, 255, .3);
+}
+
+@media (max-width: 700px) {
+    .bracket-col-header { font-size: .64rem; padding: .45rem .5rem; }
+}
+
+/* ---------- Réutilisation des couleurs "primary" de Bootstrap ---------- */
+.btn-primary, .bg-primary { background-color: var(--navy-800) !important; border-color: var(--navy-800) !important; }
+.btn-primary:hover, .btn-primary:focus { background-color: var(--navy-900) !important; border-color: var(--navy-900) !important; }
+.btn-outline-primary { color: var(--navy-800); border-color: var(--navy-800); }
+.btn-outline-primary:hover, .btn-outline-primary:focus { background-color: var(--navy-800); border-color: var(--navy-800); color: var(--white); }
+.text-primary { color: var(--navy-800) !important; }
+.badge.bg-warning { background-color: var(--gold-500) !important; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 700px) {
+    .page-heading { align-items: flex-start; flex-direction: column; }
+    .selector { flex-direction: column; align-items: stretch !important; }
+}

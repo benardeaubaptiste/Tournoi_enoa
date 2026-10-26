@@ -1,0 +1,184 @@
+========================================================================
+ INSTALLATION DE L'APPLICATION "tournoi_enoa" SUR UN AUTRE POSTE
+========================================================================
+Document généré le 14/09/2026 à partir de l'analyse du code du projet.
+
+------------------------------------------------------------------------
+1. PRÉREQUIS À INSTALLER SUR LE NOUVEAU POSTE
+------------------------------------------------------------------------
+
+- WampServer (ou équivalent Apache + PHP + MySQL/MariaDB), avec :
+    - PHP 8.1 ou supérieur (le développement a été fait en PHP 8.2)
+    - Extensions PHP activées : pdo_mysql, mbstring, dom, gd
+      (activées par défaut dans WAMP, à vérifier via phpinfo() en cas
+      de doute)
+    - MySQL ou MariaDB
+
+- Composer N'EST PAS obligatoire : le dossier "vendor" (dépendances,
+  dont dompdf pour l'export PDF) est déjà fourni avec le projet.
+  Il ne sera nécessaire que si ce dossier est absent ou incomplet
+  (voir étape 5).
+
+------------------------------------------------------------------------
+2. COPIER LES FICHIERS DE L'APPLICATION
+------------------------------------------------------------------------
+
+Copier l'intégralité du dossier du projet :
+
+    tournoi_enoa\
+
+vers l'équivalent de :
+
+    C:\wamp64\www\applications\devs\tournoi_enoa
+
+sur le nouveau poste (respecter le même niveau d'arborescence sous
+le dossier "www" de WAMP, ou adapter l'URL d'accès en conséquence).
+
+Vérifier que le dossier "vendor" a bien été copié (dépendances
+Composer déjà installées).
+
+------------------------------------------------------------------------
+3. CRÉER LA BASE DE DONNÉES
+------------------------------------------------------------------------
+
+Un fichier "schema.sql" est fourni à la racine du projet et contient
+la structure complète de la base (11 tables), sans données.
+
+a) Créer la base :
+
+    CREATE DATABASE tournoi_enoa CHARACTER SET utf8mb4
+        COLLATE utf8mb4_unicode_ci;
+
+   (via phpMyAdmin ou en ligne de commande)
+
+b) Importer la structure :
+
+    mysql -u root tournoi_enoa < schema.sql
+
+   (ou via l'onglet "Importer" de phpMyAdmin en sélectionnant
+   le fichier schema.sql)
+
+------------------------------------------------------------------------
+4. CONFIGURER LA CONNEXION À LA BASE DE DONNÉES
+------------------------------------------------------------------------
+
+Les identifiants de connexion (et les autres réglages sensibles) ne
+sont plus codés en dur : ils sont lus dans le fichier ".env" à la
+racine du projet, qui n'est jamais versionné dans git.
+
+Copier ".env.example" en ".env" puis renseigner (valeurs d'une
+install WAMP standard) :
+
+    DB_HOST=localhost
+    DB_PORT=3306
+    DB_NAME=tournoi_enoa
+    DB_USER=root
+    DB_PASSWORD=
+    REGISTRATION_CODE=<code d'inscription des gestionnaires>
+
+Un modèle de production est fourni dans ".env.production.example".
+
+------------------------------------------------------------------------
+5. (OPTIONNEL) RÉINSTALLER LES DÉPENDANCES COMPOSER
+------------------------------------------------------------------------
+
+À faire uniquement si le dossier "vendor" n'a pas été copié ou est
+incomplet. Depuis une invite de commande, dans le dossier du projet :
+
+    composer install
+
+Cela nécessite que Composer soit installé sur le poste
+(https://getcomposer.org/).
+
+------------------------------------------------------------------------
+6. CRÉER UN COMPTE ADMINISTRATEUR
+------------------------------------------------------------------------
+
+L'application nécessite d'être connecté en tant qu'admin pour accéder
+à la quasi-totalité des pages (seules les pages de login/logout sont
+publiques). Aucun compte n'est créé par défaut : il faut en insérer
+un manuellement dans la table "admins".
+
+a) Générer un hash de mot de passe en PHP. Créer un script temporaire
+   (par ex. hash.php) contenant :
+
+    <?php
+    echo password_hash('VotreMotDePasse', PASSWORD_BCRYPT);
+
+   L'exécuter (double-clic via PHP CLI, ou depuis un navigateur), puis
+   copier la chaîne obtenue (commence par $2y$...).
+
+b) Insérer le compte admin en base (adapter les valeurs) :
+
+    INSERT INTO admins (username, password_hash, display_name)
+    VALUES ('admin', '<hash copié à l'étape précédente>', 'Administrateur');
+
+c) Supprimer le script temporaire hash.php après usage (ne pas le
+   laisser accessible publiquement).
+
+------------------------------------------------------------------------
+6bis. (MISE EN PRODUCTION) RÉGLAGES DE SÉCURITÉ À VÉRIFIER
+------------------------------------------------------------------------
+
+- .env : changer REGISTRATION_CODE (vide = inscription désactivée) (code demandé sur la page
+  d'inscription publique index.php?controller=auth&action=register). Sans
+  ça, n'importe qui connaissant l'URL peut se créer un compte gestionnaire
+  avec accès complet à l'application. Ne communiquer ce code qu'aux
+  personnes autorisées à gérer des tournois, et le changer régulièrement.
+
+- .env : remplacer le compte MySQL "root" sans mot de passe
+  par un utilisateur dédié, avec mot de passe, n'ayant accès qu'à la base
+  "tournoi_enoa".
+
+- .env : APP_ENV=production et APP_DEBUG=false en production (affiche
+  sinon les erreurs PHP, y compris chemins serveur et requêtes SQL, aux
+  visiteurs).
+
+- .env : SESSION_SECURE_COOKIE est à false par défaut (nécessaire
+  pour rester utilisable en HTTP sur WAMP local). À passer à true UNE FOIS
+  l'appli effectivement servie en HTTPS, sans quoi le cookie de session
+  peut circuler en clair.
+
+- Un .htaccess à la racine du projet restreint désormais l'accès HTTP au
+  seul dossier public\ (le code source et schema.sql/composer.json
+  n'étaient auparavant pas protégés). Vérifier que le module Apache
+  mod_rewrite/mod_authz_core est actif et qu'AllowOverride All est bien
+  positionné pour ce dossier dans la configuration Apache/WampServer,
+  sans quoi le .htaccess est ignoré silencieusement.
+
+------------------------------------------------------------------------
+7. ACCÉDER À L'APPLICATION
+------------------------------------------------------------------------
+
+Démarrer WampServer (icône verte), puis ouvrir dans un navigateur :
+
+    http://localhost/applications/devs/tournoi_enoa/public/index.php
+
+(adapter le chemin si l'application a été copiée à un autre
+emplacement sous le dossier "www").
+
+Se connecter avec le compte admin créé à l'étape 6.
+
+------------------------------------------------------------------------
+8. VÉRIFICATIONS EN CAS DE PROBLÈME
+------------------------------------------------------------------------
+
+- Page blanche ou erreur PDO : vérifier les identifiants dans
+  le fichier .env et que le service MySQL est bien démarré.
+
+- Erreur liée à dompdf / export PDF : vérifier que les extensions
+  PHP "mbstring", "dom" et "gd" sont bien activées (menu WampServer
+  > PHP > Extensions PHP).
+
+- Erreur "class not found" : vérifier que le dossier "vendor" est
+  bien présent et complet (relancer "composer install" si besoin,
+  voir étape 5).
+
+- Page "La page recherchée n'existe pas" au premier accès : c'est
+  normal si vous n'êtes pas connecté et que l'URL ne pointe pas vers
+  la page de login ; l'application redirige automatiquement vers
+  index.php?controller=auth&action=login.
+
+------------------------------------------------------------------------
+FIN DU DOCUMENT
+------------------------------------------------------------------------

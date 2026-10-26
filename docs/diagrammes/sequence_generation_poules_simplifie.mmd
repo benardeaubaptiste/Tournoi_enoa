@@ -1,0 +1,33 @@
+%% Diagramme de séquence simplifié – Génération des poules et des matchs de qualification
+%% Code source : controllers/PoolController.php (autoGenerate)
+sequenceDiagram
+    autonumber
+    actor Admin as Administrateur
+    participant Nav as Navigateur
+    participant C as PoolController
+    participant M as Modèles
+    participant DB as Base de données
+
+    Admin->>Nav: Clic sur « Générer automatiquement »
+    Nav->>C: POST autoGenerate(tournamentId)
+    activate C
+    C->>M: Vérifier les résultats, lire réglages et équipes
+    M->>DB: SELECT
+    DB-->>M: Données
+    M-->>C: Réglages et liste des équipes
+
+    alt Matchs déjà joués ou moins de 2 équipes
+        C-->>Nav: Redirection avec message d'erreur
+    else Génération possible
+        C->>C: Répartir les équipes dans les poules
+        loop Pour chaque poule
+            C->>M: create() puis syncTeams()
+            M->>DB: INSERT pools et pool_teams
+        end
+        C->>M: generate() des matchs de qualification
+        M->>M: Calculer les rencontres (round-robin) et les horaires
+        M->>DB: INSERT matches
+        C-->>Nav: Redirection vers la page des poules
+    end
+    deactivate C
+    Nav-->>Admin: Affiche les poules et les matchs

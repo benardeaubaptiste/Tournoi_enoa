@@ -1,0 +1,21 @@
+# Secrets / configuration propre à chaque installation
+.env
+.env.*
+!.env.example
+!.env.production.example
+
+# Dépendances Composer (réinstallées par "composer install" / le build Docker)
+/vendor/
+
+# Journaux, sauvegardes, fichiers temporaires
+*.log
+*.sql.gz
+*.tar.gz
+*.bak
+
+# IDE / OS
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store
+node_modules/

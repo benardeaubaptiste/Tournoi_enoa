@@ -1,0 +1,116 @@
+%% Diagramme de séquence – Génération de la phase finale (tableaux à élimination directe)
+%% Code source : controllers/MatchController.php (generateFinalPhase) et Models/BracketModel.php
+sequenceDiagram
+    autonumber
+    actor Admin as Administrateur
+    participant Nav as Navigateur
+    participant R as index.php / Router
+    participant MC as MatchController
+    participant PM as PoolModel
+    participant MM as MatchModel
+    participant ST as Standings (statique)
+    participant TeM as TeamModel
+    participant BM as BracketModel
+    participant TM as TournamentModel
+    participant AM as AdminModel
+    participant DB as Base MySQL
+
+    Admin->>Nav: Clic sur « Générer la phase finale »
+    Nav->>R: POST index.php?controller=match&action=generateFinalPhase&tournamentId=X
+    R->>R: Auth::check() puis Csrf::check(csrf_token)
+    break Non connecté ou jeton CSRF invalide
+        R-->>Nav: Redirection login ou HTTP 419
+    end
+    R->>MC: new MatchController() puis generateFinalPhase(X)
+    activate MC
+
+    MC->>PM: byTournament(X) puis teamAssignments(X)
+    PM->>DB: SELECT pools et pool_teams
+    DB-->>PM: lignes
+    PM-->>MC: poules et équipes affectées
+    MC->>MC: Construire la liste des équipes qualifiées (id vers nom)
+
+    MC->>MM: qualificationByTournament(X)
+    MM->>DB: SELECT matchs de qualification
+    DB-->>MM: lignes
+    MM-->>MC: MatchGame[]
+
+    MC->>ST: compute(qualMatches, teamNames)
+    ST-->>MC: Classement général (points, différence, etc.)
+    MC->>MC: forfaitTeamIds(X)
+    MC->>TeM: byTournament(X)
+    TeM->>DB: SELECT équipes
+    DB-->>TeM: lignes
+    TeM-->>MC: Team[] (filtrées sur statut forfait)
+    MC->>ST: excludeTeams(classement, forfaits)
+    ST-->>MC: Classement sans les forfaits
+
+    break Moins de 2 équipes classées
+        MC-->>Nav: Redirection pool/index&bracketError=not_enough_teams
+    end
+    MC->>BM: hasFinalPhaseResults(X)
+    BM->>DB: SELECT COUNT(*) matchs upper, lower, grand_final joués
+    DB-->>BM: nombre
+    BM-->>MC: bool
+    break Phase finale déjà commencée
+        MC-->>Nav: Redirection pool/index&bracketError=already_played
+    end
+
+    MC->>BM: clearFinalPhase(X)
+    BM->>DB: DELETE FROM matches (upper, lower, grand_final)
+
+    MC->>MC: resolveUpperCount(X, nbClassées)
+    MC->>TM: settings(X)
+    TM->>DB: SELECT * FROM tournament_settings
+    DB-->>TM: réglages
+    TM-->>MC: nombre_equipes_upper et nombre_equipes_lower
+    Note over MC: Réglage utilisé s'il correspond au nombre réel d'équipes classées, sinon partage en deux moitiés
+
+    MC->>BM: generateFinalPhase(X, upperIds, lowerIds)
+    activate BM
+    critical Transaction PDO
+        BM->>DB: beginTransaction()
+        BM->>DB: nextMatchNumber()
+        loop Pour chaque tableau (upper puis lower)
+            BM->>BM: generateSingleElim(X, phase, équipes classées)
+            opt Effectif qui n'est pas une puissance de 2
+                loop Pour chaque match du tour préliminaire
+                    BM->>DB: INSERT INTO matches (tour préliminaire)
+                end
+            end
+            loop Pour chaque round jusqu'à la finale du tableau
+                BM->>DB: INSERT INTO matches
+                BM->>DB: UPDATE matches SET next_match_id (lien vers le match suivant)
+            end
+        end
+        Note over BM: Placement par têtes de série : la meilleure équipe affronte la moins bien classée
+        opt Au moins un des deux tableaux contient des équipes
+            BM->>DB: INSERT INTO matches (grand_final)
+            BM->>DB: UPDATE matches SET next_match_id (finales upper et lower vers la grande finale)
+        end
+        BM->>BM: scheduleFinalPhase(X)
+        BM->>DB: SELECT date, réglages, terrains actifs
+        DB-->>BM: données de planification
+        opt Horaires et durée de la phase finale configurés
+            loop Pour chaque round (upper et lower en parallèle sur les terrains)
+                BM->>DB: UPDATE matches SET terrain et horaires
+            end
+            BM->>DB: UPDATE grande finale (placée en dernier)
+        end
+        BM->>DB: commit()
+    option Exception levée
+        BM->>DB: rollBack()
+    end
+    BM-->>MC: tableaux générés et planifiés
+    deactivate BM
+
+    MC->>TM: advanceStatut(X, "phase_finale")
+    TM->>DB: UPDATE tournaments SET statut
+    MC->>AM: logAction(adminId, "generate_final_phase", description, X)
+    AM->>DB: INSERT INTO admin_logs
+
+    MC-->>Nav: Redirection match/bracket&bracketGenerated=1
+    deactivate MC
+    Nav->>R: GET match/bracket&tournamentId=X
+    R-->>Nav: Page HTML du tableau (BracketTree::build puis renderFull)
+    Nav-->>Admin: Affiche l'arbre de la phase finale

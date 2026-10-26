@@ -1,0 +1,117 @@
+%% Diagramme de séquence – Génération automatique des poules et des matchs de qualification
+%% Code source : controllers/PoolController.php (autoGenerate) et Models/QualificationModel.php (generate)
+sequenceDiagram
+    autonumber
+    actor Admin as Administrateur
+    participant Nav as Navigateur
+    participant R as index.php / Router
+    participant PC as PoolController
+    participant QM as QualificationModel
+    participant TM as TournamentModel
+    participant TeM as TeamModel
+    participant PM as PoolModel
+    participant AM as AdminModel
+    participant DB as Base MySQL
+
+    Admin->>Nav: Clic sur « Générer automatiquement »
+    Nav->>R: POST index.php?controller=pool&action=autoGenerate&tournamentId=X
+    R->>R: Auth::check() puis Csrf::check(csrf_token)
+    break Administrateur non connecté
+        R-->>Nav: Redirection vers auth/login
+    end
+    break Jeton CSRF invalide
+        R-->>Nav: HTTP 419 « Session expirée »
+    end
+    R->>PC: new PoolController() puis autoGenerate(X)
+    activate PC
+
+    PC->>QM: hasResults(X)
+    QM->>DB: SELECT COUNT(*) FROM matches (qualification, live ou finished)
+    DB-->>QM: nombre
+    QM-->>PC: bool
+    break Des matchs de qualification ont déjà été joués
+        PC-->>Nav: Redirection pool/index&qualError=already_played
+    end
+
+    PC->>TM: settings(X)
+    TM->>DB: SELECT * FROM tournament_settings
+    DB-->>TM: réglages
+    TM-->>PC: nombre_poules, mode_repartition
+
+    PC->>TeM: byTournament(X)
+    TeM->>DB: SELECT équipes du tournoi
+    DB-->>TeM: lignes
+    TeM-->>PC: Team[]
+    PC->>PC: Exclure les équipes forfait
+    break Moins de 2 équipes
+        PC-->>Nav: Redirection pool/index&qualError=not_enough_teams
+    end
+
+    opt mode_repartition = aleatoire
+        PC->>PC: shuffle(teamIds)
+    end
+    PC->>PC: Répartition « à la donne » (équipe i dans la poule i modulo nombre_poules)
+
+    PC->>PM: byTournament(X)
+    PM->>DB: SELECT pools
+    DB-->>PM: poules existantes
+    PM-->>PC: Pool[]
+    loop Pour chaque poule existante
+        PC->>PM: delete(poolId, X)
+        PM->>DB: DELETE FROM pools
+    end
+
+    loop Pour chaque nouvelle poule non vide (Poule A, B, C, D)
+        PC->>PM: create(X, numero, nom, "validee")
+        PM->>DB: INSERT INTO pools
+        DB-->>PM: id
+        PM-->>PC: poolId
+        PC->>PM: syncTeams(poolId, teamIds)
+        PM->>DB: DELETE puis INSERT INTO pool_teams
+    end
+
+    PC->>TM: advanceStatut(X, "poules_validees")
+    TM->>DB: UPDATE tournaments SET statut
+
+    PC->>QM: clear(X)
+    QM->>DB: DELETE FROM matches (phase qualification)
+
+    PC->>QM: generate(X, poolTeamIds)
+    activate QM
+    loop Pour chaque poule
+        QM->>QM: circleRoundRobin(teamIds) calcule les rencontres par round
+    end
+    Note over QM: Méthode du cercle : chaque équipe rencontre une fois chacune des autres équipes de sa poule
+
+    critical Transaction PDO
+        QM->>DB: beginTransaction()
+        QM->>DB: nextMatchNumber() lit le prochain numéro de match
+        loop Pour chaque round, puis chaque poule, puis chaque rencontre
+            QM->>DB: INSERT INTO matches (status pending)
+        end
+        QM->>QM: scheduleQualification(X)
+        QM->>DB: SELECT matchs pending, date du tournoi, réglages, terrains actifs
+        DB-->>QM: données de planification
+        opt Date, heure de début et durée des matchs configurées
+            loop Pour chaque match (ordre round, poule, numéro)
+                QM->>QM: Choisir le terrain libre au plus tôt (2 équipes et terrain disponibles)
+                QM->>DB: UPDATE matches SET terrain et horaires
+            end
+        end
+        QM->>DB: commit()
+    option Exception levée
+        QM->>DB: rollBack()
+    end
+    QM-->>PC: matchs générés et planifiés
+    deactivate QM
+
+    PC->>TM: advanceStatut(X, "planning_genere")
+    TM->>DB: UPDATE tournaments SET statut
+    PC->>AM: logAction(adminId, "auto_generate_pools", description, X)
+    AM->>DB: INSERT INTO admin_logs
+
+    PC-->>Nav: Redirection pool/index&qualGenerated=1
+    deactivate PC
+    Nav->>R: GET pool/index&tournamentId=X
+    R-->>Nav: Page HTML des poules et du planning
+    Nav-->>Admin: Affiche les poules et les matchs générés

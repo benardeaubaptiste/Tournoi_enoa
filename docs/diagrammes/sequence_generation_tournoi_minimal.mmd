@@ -1,0 +1,27 @@
+%% Diagramme de séquence minimal – Génération d'un tournoi (poules puis phase finale)
+sequenceDiagram
+    autonumber
+    actor Admin as Administrateur
+    participant Nav as Navigateur
+    participant App as Application
+    participant DB as Base de données
+
+    Admin->>Nav: Générer les poules
+    Nav->>App: Demande de génération
+    App->>DB: Lire les équipes
+    DB-->>App: Équipes inscrites
+    alt Moins de 2 équipes
+        App-->>Nav: Message d'erreur
+    else
+        App->>App: Créer les poules et les matchs
+        App->>DB: Enregistrer poules et matchs
+        App-->>Nav: Afficher les poules
+    end
+
+    Admin->>Nav: Générer la phase finale
+    Nav->>App: Demande de génération
+    App->>DB: Lire les résultats
+    DB-->>App: Scores des matchs
+    App->>App: Calculer le classement et créer le tableau
+    App->>DB: Enregistrer les matchs
+    App-->>Nav: Afficher le tableau final
