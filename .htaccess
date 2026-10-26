@@ -3,7 +3,7 @@
 # le reste de l'arborescence : schema.sql (structure de la base), composer.json/lock
 # (versions exactes des dépendances, utile pour cibler des failles connues),
 # INSTALLATION.txt (qui documente les identifiants MySQL par défaut), ainsi que le code
-# source PHP (Core/, Models/, Views/, controllers/, vendor/) seraient tous téléchargeables
+# source PHP (Core/, Models/, Views/, Controllers/, vendor/) seraient tous téléchargeables
 # directement. Ça ne gêne en rien le fonctionnement de l'appli : les include/require de
 # public/index.php passent par le système de fichiers, pas par le serveur HTTP.
 <IfModule mod_authz_core.c>

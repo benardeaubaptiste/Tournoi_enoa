@@ -14,10 +14,10 @@ Document généré le 14/09/2026 à partir de l'analyse du code du projet.
       de doute)
     - MySQL ou MariaDB
 
-- Composer N'EST PAS obligatoire : le dossier "vendor" (dépendances,
-  dont dompdf pour l'export PDF) est déjà fourni avec le projet.
-  Il ne sera nécessaire que si ce dossier est absent ou incomplet
-  (voir étape 5).
+- Composer : le dossier "vendor" (dépendances, dont dompdf pour
+  l'export PDF) n'est PAS versionné dans git. Après un "git clone",
+  lancer "composer install" (voir étape 5). Inutile avec Docker
+  (section 9), l'image l'installe elle-même.
 
 ------------------------------------------------------------------------
 2. COPIER LES FICHIERS DE L'APPLICATION
@@ -178,6 +178,41 @@ Se connecter avec le compte admin créé à l'étape 6.
   normal si vous n'êtes pas connecté et que l'URL ne pointe pas vers
   la page de login ; l'application redirige automatiquement vers
   index.php?controller=auth&action=login.
+
+------------------------------------------------------------------------
+9. DÉPLOIEMENT AVEC DOCKER (PRODUCTION)
+------------------------------------------------------------------------
+
+Prérequis : Docker et Docker Compose. Deux conteneurs sont lancés :
+"web" (PHP 8.2 + Apache, DocumentRoot = public/) et "db" (MySQL 8.4,
+non exposé à l'extérieur, données dans le volume "db_data").
+
+a) Préparer la configuration :
+
+    cp .env.production.example .env
+
+   puis remplacer toutes les valeurs CHANGE_ME par des secrets forts
+   (ex. : openssl rand -base64 24). Laisser SESSION_SECURE_COOKIE=true
+   si l'appli est servie en HTTPS (reverse proxy), false sinon.
+
+b) Construire et démarrer :
+
+    docker compose up -d --build
+
+   Au tout premier démarrage, schema.sql est importé automatiquement
+   dans la base (uniquement si le volume db_data est vide).
+
+c) Créer le compte administrateur :
+
+    docker compose exec web php bin/create-admin.php <identifiant> <mot_de_passe>
+
+d) Accéder à l'application : http://<serveur>:<APP_PORT>/
+   (8080 par défaut).
+
+Commandes utiles :
+    docker compose logs -f web          (journaux Apache/PHP)
+    docker compose exec db mysqldump -u root -p tournoi_enoa > sauvegarde.sql
+    git pull && docker compose up -d --build   (mise à jour)
 
 ------------------------------------------------------------------------
 FIN DU DOCUMENT

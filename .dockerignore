@@ -1,0 +1,14 @@
+.git
+.gitignore
+.dockerignore
+.env
+.env.*
+vendor
+tests
+docs
+docker-compose*.yml
+Dockerfile
+*.log
+*.tar.gz
+.vscode
+.idea

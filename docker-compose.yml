@@ -1,0 +1,47 @@
+# Lancement : cp .env.production.example .env  (puis remplacer les CHANGE_ME)
+#             docker compose up -d --build
+# Créer le compte admin : docker compose exec web php bin/create-admin.php <identifiant> <mot_de_passe>
+services:
+  web:
+    build: .
+    image: tournoi_enoa:latest
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${APP_PORT:-8080}:80"
+    environment:
+      APP_ENV: ${APP_ENV:-production}
+      APP_DEBUG: ${APP_DEBUG:-false}
+      SESSION_SECURE_COOKIE: ${SESSION_SECURE_COOKIE:-false}
+      REGISTRATION_CODE: ${REGISTRATION_CODE:-}
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME:-tournoi_enoa}
+      DB_USER: ${DB_USER:?DB_USER manquant dans .env}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD manquant dans .env}
+
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_NAME:-tournoi_enoa}
+      MYSQL_USER: ${DB_USER:?DB_USER manquant dans .env}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD manquant dans .env}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?MYSQL_ROOT_PASSWORD manquant dans .env}
+      TZ: Europe/Paris
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
+    volumes:
+      - db_data:/var/lib/mysql
+      # Structure de la base importée automatiquement au tout premier démarrage (volume vide)
+      - ./schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    # Pas de port publié : MySQL n'est joignable que par le conteneur web.
+
+volumes:
+  db_data:
