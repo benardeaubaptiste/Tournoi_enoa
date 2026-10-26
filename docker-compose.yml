@@ -1,10 +1,11 @@
-# Lancement : cp .env.production.example .env  (puis remplacer les CHANGE_ME)
-#             docker compose up -d --build
+# Lancement (VPS) : cp .env.production.example .env  (puis remplacer les CHANGE_ME)
+#                   docker compose pull && docker compose up -d
+# Lancement (dev, build local) : docker compose up -d --build
 # Créer le compte admin : docker compose exec web php bin/create-admin.php <identifiant> <mot_de_passe>
 services:
   web:
     build: .
-    image: tournoi_enoa:latest
+    image: ghcr.io/benardeaubaptiste/tournoi_enoa:${APP_VERSION:-latest}
     restart: unless-stopped
     depends_on:
       db:

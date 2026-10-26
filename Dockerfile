@@ -8,6 +8,12 @@ RUN composer install --no-dev --no-interaction --no-progress --prefer-dist --opt
 # --- Étape 2 : image d'exécution PHP 8.2 + Apache ---
 FROM php:8.2-apache
 
+ARG APP_VERSION=dev
+LABEL org.opencontainers.image.source="https://github.com/benardeaubaptiste/Tournoi_enoa" \
+      org.opencontainers.image.title="tournoi_enoa" \
+      org.opencontainers.image.description="Gestionnaire de tournoi de volley ENOA" \
+      org.opencontainers.image.version="${APP_VERSION}"
+
 # Extensions requises : pdo_mysql (BDD), gd (images dans les PDF dompdf). dom et mbstring sont
 # déjà fournies par l'image officielle.
 RUN apt-get update \
