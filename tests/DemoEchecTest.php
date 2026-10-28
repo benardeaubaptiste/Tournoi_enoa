@@ -12,7 +12,7 @@
 
 use tournoi_enoa\Tests\MiniTest;
 
-if (getenv('DEMO_ECHEC') === '1') {
+if (true) { // branche demo/test-en-echec : toujours en échec (PR de démonstration, ne jamais fusionner)
     MiniTest::suite('Démo CI — test volontairement en échec (DEMO_ECHEC=1)');
 
     MiniTest::test('1 + 1 = 3 (faux exprès)', function () {
