@@ -23,5 +23,6 @@ require __DIR__ . '/BracketPreliminaryRoundTest.php';
 require __DIR__ . '/CourtBalanceTest.php';
 require __DIR__ . '/SchedulingIntegrationTest.php';
 require __DIR__ . '/FullTournament16Test.php';
+require __DIR__ . '/DemoEchecTest.php';
 
 exit(\tournoi_enoa\Tests\MiniTest::summary());
