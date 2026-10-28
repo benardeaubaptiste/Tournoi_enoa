@@ -17,3 +17,11 @@ Règles (ruleset GitHub `protection-main-preprod`, sans exception) :
 
 Circuit : `feature/*` → PR vers `preprod` → déploiement automatique en pré-prod → recette → PR `preprod` → `main` → déploiement automatique en production.
 Si un test échoue, rien n'est déployé (`.github/workflows/deploy.yml` : le job `deploy` dépend du job `tests`).
+
+### Vérifier que les tests bloquent bien le déploiement
+
+- **Lancement manuel** (droit d'écriture sur le dépôt requis) : *Actions → CI/CD → Run workflow*, branche `preprod` :
+  - case **« Simuler un échec » cochée** → un test volontairement faux (`tests/DemoEchecTest.php`) est activé : `tests` ❌, `deploy` **skipped** ;
+  - case **décochée** → seuls les vrais tests tournent : `tests` ✅, `deploy` ✅.
+- **PR de démonstration** laissée ouverte (jamais fusionnée) : `demo/test-en-echec` → `preprod`, tests en échec, fusion bloquée.
+- En local : `php tests/run.php` (normal) / `DEMO_ECHEC=1 php tests/run.php` (échec simulé).

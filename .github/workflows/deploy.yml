@@ -14,7 +14,14 @@ on:
     branches: [main, preprod]
   pull_request:
     branches: [main, preprod]
+  # Lancement manuel (Actions → CI/CD → Run workflow), aussi utilisé pour la démonstration :
+  # « Simuler un échec » active tests/DemoEchecTest.php → tests en échec → deploy « skipped ».
   workflow_dispatch:
+    inputs:
+      simuler_echec:
+        description: 'Simuler un échec (active un test volontairement faux)'
+        type: boolean
+        default: false
 
 jobs:
   tests:
@@ -39,6 +46,7 @@ jobs:
       DB_NAME: tournoi_enoa
       DB_USER: tournoi_test
       DB_PASSWORD: tournoi_test
+      DEMO_ECHEC: ${{ inputs.simuler_echec && '1' || '' }}
     steps:
       - uses: actions/checkout@v4
 
