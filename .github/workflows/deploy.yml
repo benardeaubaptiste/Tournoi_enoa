@@ -1,21 +1,76 @@
-# Déploiement automatique sur le VPS à chaque push/merge sur main :
-# envoi des fichiers par rsync puis reconstruction de l'image Docker sur le VPS.
+# Intégration et déploiement continus :
+#   - job "tests" : à chaque push et à chaque pull request vers main ou preprod
+#     (tests PHP avec une vraie base MySQL + test JS du minuteur) ;
+#   - job "deploy" : uniquement sur push (= merge d'une PR), et seulement si les tests passent.
+#       preprod -> /opt/tournoi_enoa_preprod (https://preprod.tournoi.180-149-198-67.sslip.io)
+#       main    -> /opt/tournoi_enoa         (https://tournoi.180-149-198-67.sslip.io)
+# Envoi des fichiers par rsync puis reconstruction de l'image Docker sur le VPS.
 # Le .env et le docker-compose.yml du VPS ne sont jamais écrasés.
 # Secrets requis : VPS_HOST, VPS_USER, VPS_SSH_KEY
-name: Déploiement
+name: CI/CD
 
 on:
   push:
-    branches: [main]
+    branches: [main, preprod]
+  pull_request:
+    branches: [main, preprod]
   workflow_dispatch:
 
-concurrency:
-  group: deploy-production
-  cancel-in-progress: false
-
 jobs:
-  deploy:
+  tests:
+    name: tests
     runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_DATABASE: tournoi_enoa
+          MYSQL_USER: tournoi_test
+          MYSQL_PASSWORD: tournoi_test
+          MYSQL_ROOT_PASSWORD: root_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -u root -proot_test --silent"
+          --health-interval=10s --health-timeout=5s --health-retries=10
+    env:
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+      DB_NAME: tournoi_enoa
+      DB_USER: tournoi_test
+      DB_PASSWORD: tournoi_test
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: pdo_mysql
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Importer le schéma de la base de test
+        run: mysql -h 127.0.0.1 -u tournoi_test -ptournoi_test tournoi_enoa < schema.sql
+
+      - name: Tests PHP
+        run: php tests/run.php
+
+      - name: Test JS du minuteur
+        run: node tests/timer.test.js
+
+  deploy:
+    needs: tests
+    if: >-
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+      && (github.ref_name == 'main' || github.ref_name == 'preprod')
+    runs-on: ubuntu-latest
+    env:
+      TARGET_DIR: ${{ github.ref_name == 'main' && '/opt/tournoi_enoa' || '/opt/tournoi_enoa_preprod' }}
+    concurrency:
+      group: deploy-${{ github.ref_name }}
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@v4
 
@@ -26,14 +81,14 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Envoyer les fichiers
+      - name: Envoyer les fichiers vers ${{ env.TARGET_DIR }}
         run: |
           rsync -az --delete \
             --exclude '.git' --exclude '.github' --exclude '.env' \
             --exclude 'docker-compose.yml' --exclude 'vendor' --exclude 'tests' \
-            ./ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/opt/tournoi_enoa/
+            ./ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${{ env.TARGET_DIR }}/
 
       - name: Reconstruire et relancer
         run: |
           ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} \
-            "cd /opt/tournoi_enoa && docker compose up -d --build web && docker image prune -f"
+            "cd ${{ env.TARGET_DIR }} && docker compose up -d --build web && docker image prune -f"
